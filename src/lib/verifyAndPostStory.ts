@@ -4,7 +4,6 @@ import fs from "node:fs";
 export function verifyAndPostStory(
   msg: Message,
   message: string,
-  count: number,
   story: string,
   storyPostChannel: TextChannel,
   storyFilePath: string,
@@ -13,24 +12,33 @@ export function verifyAndPostStory(
   console.log(message);
 
   if (message === ".") {
-    if (count > 15) {
+    let storyString: string = "";
+
+    const storyJson = JSON.parse(story);
+    const storyArr = Object.keys(storyJson);
+    storyArr.map((key) => {
+      console.log(storyJson[key]);
+      storyString = storyString + " " + storyJson[key];
+    });
+
+    if (storyArr.length >= 15) {
       const storyEmbed = new EmbedBuilder()
         .setTitle("New Story is here")
-        .setDescription(story);
+        .setDescription(storyString);
 
       storyPostChannel.send({ embeds: [storyEmbed] });
 
-      fs.truncateSync(storyFilePath, 0);
+      fs.writeFileSync(storyFilePath, JSON.stringify({}));
+      fs.writeFileSync(trackFilePath, JSON.stringify({}));
       msg.channel.send(`Posted Story in <#${storyPostChannel.id}>`);
 
-      fs.writeFileSync(trackFilePath, JSON.stringify({}));
       return true;
     } else {
       msg.delete();
       msg.channel
-        .send(`Can't end story here ${15 - count} more words needed`)
-        .then((msg) => setTimeout(() => msg.delete(), 2000));
-      return false;
+        .send(`Can't end story here ${15 - storyArr.length} more words needed`)
+        .then((message) => setTimeout(() => message.delete(), 2000));
+      return true;
     }
   }
   return false;

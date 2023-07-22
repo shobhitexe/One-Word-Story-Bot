@@ -6,12 +6,11 @@ import {
 } from "../utils/conditions";
 import { Message } from "discord.js";
 
-export function checkConditions(
-  msg: Message,
-  message: string,
-  space: boolean,
-  msgCount: number
-) {
+export function checkConditions(msg: Message, message: string) {
+  const dash: RegExp = new RegExp("_", "g");
+  const msgCount: number = (message.match(dash) || []).length;
+  const space: boolean = message.includes(" ");
+
   switch (true) {
     case space:
       noSpace(msg);

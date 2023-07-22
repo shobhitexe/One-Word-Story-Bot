@@ -11,19 +11,15 @@ const { storyChannelId, storyPostChannelId } = config();
 export async function messageEvent(client: Client, msg: Message) {
   if (msg.author.bot) return;
 
-  const storyFilePath = path.join(__dirname, "..", "..", "/data/story.txt");
+  const storyFilePath = path.join(__dirname, "..", "..", "/data/story.json");
   const trackFilePath = path.join(__dirname, "..", "..", "/data/track.json");
 
   const message: string = msg.content.toString();
-  const author: string = msg.author.id;
   const story: string = fs.readFileSync(storyFilePath, {
     encoding: "utf8",
     flag: "r",
   });
-  const dash: RegExp = new RegExp("_", "g");
-  const count: number = (story.match(dash) || []).length;
-  const msgCount: number = (message.match(dash) || []).length;
-  const space: boolean = message.includes(" ");
+
   const storyPostChannel: Channel | undefined =
     client.channels.cache.get(storyPostChannelId);
 
@@ -35,7 +31,6 @@ export async function messageEvent(client: Client, msg: Message) {
         isPosted = verifyAndPostStory(
           msg,
           message,
-          count,
           story,
           storyPostChannel,
           storyFilePath,
@@ -44,10 +39,10 @@ export async function messageEvent(client: Client, msg: Message) {
       }
       if (isPosted) return;
 
-      const check: boolean = checkConditions(msg, message, space, msgCount);
+      const check: boolean = checkConditions(msg, message);
       if (!check) return;
 
-      trackTurn(author, message, msg, storyFilePath, trackFilePath);
+      trackTurn(message, msg, trackFilePath, storyFilePath);
     }
   } catch (err) {
     console.log(`Message error ${err}`);

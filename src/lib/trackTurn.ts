@@ -5,19 +5,30 @@ type trackType = {
   [key: string]: number;
 };
 
+type storyType = {
+  [key: number]: string;
+};
+
 export function trackTurn(
-  author: string,
   message: string,
   msg: Message,
-  storyFilePath: string,
-  trackFilePath: string
+  trackFilePath: string,
+  storyFilePath: string
 ) {
   try {
+    const author: string = msg.author.id;
+
     let track: trackType = {};
+    let story: storyType = {};
 
     const trackData = fs.readFileSync(trackFilePath, "utf8");
     if (trackData) {
       track = JSON.parse(trackData);
+    }
+
+    const storyData = fs.readFileSync(storyFilePath, "utf-8");
+    if (storyData) {
+      story = JSON.parse(storyData);
     }
 
     if (author in track) {
@@ -30,7 +41,9 @@ export function trackTurn(
     fs.writeFileSync(trackFilePath, JSON.stringify(track));
 
     if (track[author] === 1) {
-      fs.appendFileSync(storyFilePath, `${message}_`);
+      const storyLength = Object.keys(story).length;
+      story[storyLength] = message;
+      fs.writeFileSync(storyFilePath, JSON.stringify(story));
       msg.react("✅");
     } else {
       msg.delete();
