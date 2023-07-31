@@ -31,6 +31,7 @@ export function verifyAndPostStory(
       fs.writeFileSync(storyFilePath, JSON.stringify({}));
       fs.writeFileSync(trackFilePath, JSON.stringify({}));
       msg.channel.send(`Posted Story in <#${storyPostChannel.id}>`);
+      console.log("Story posted");
 
       return true;
     } else {

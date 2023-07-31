@@ -44,7 +44,14 @@ export function trackTurn(
       const storyLength = Object.keys(story).length;
       story[storyLength] = message;
       fs.writeFileSync(storyFilePath, JSON.stringify(story));
-      msg.react("✅");
+
+      try {
+        msg.react("<:fine:962401480063742042>").catch(() => {
+          msg.react("✅");
+        });
+      } catch (error) {
+        console.error("Error while reacting with custom emoji:", error);
+      }
     } else {
       msg.delete();
       msg.channel
